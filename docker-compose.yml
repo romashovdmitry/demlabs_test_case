@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+
+    demlabs_django_gunicorn_wsgi:
+        container_name: demlabs_django_gunicorn_wsgi
+        env_file:
+            - .env
+        build:
+            context: .
+            dockerfile: ./Docker/Django_Gunicorn_WSGI/Dockerfile
+        ports: 
+            - "8070:8070"
+        networks:
+            - demlabs-app-network
+
+    demlabs_nginx:
+        container_name: demlabs_nginx
+        build:
+            context: .
+            dockerfile: ./Docker/Nginx/Dockerfile
+        ports:
+            - "8000:8000"
+        depends_on:
+            - demlabs_django_gunicorn_wsgi
+        networks:
+            - demlabs-app-network
+
+    demlabs_database:
+        container_name: demlabs_database
+        env_file:
+            - .env
+        build:
+            context: .
+            dockerfile: ./Docker/Database/Dockerfile
+            args:
+                - POSTGRES_DB=${POSTGRES_DB}
+                - POSTGRES_USER=${POSTGRES_USER}
+                - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                - POSTGRES_PORT=${POSTGRES_PORT}
+        networks:
+          - demlabs-app-network        
+
+networks:
+  demlabs-app-network:

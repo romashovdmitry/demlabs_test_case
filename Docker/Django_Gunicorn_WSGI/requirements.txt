@@ -1,0 +1,27 @@
+# Djanto core
+gunicorn==22.0.0
+Django == 5.0.6
+djangorestframework==3.14
+requests==2.27.1
+adrf==0.1.6
+
+# for auth
+djangorestframework-simplejwt==5.3.1
+
+# for working with ENV
+python-dotenv==1.0.0
+
+# for tests
+pytest==8.1.1
+pytest-django==4.8.0
+
+# asyncio libs
+aiohttp==3.9.5
+aiofiles==23.2.1
+
+# Telegram Bot
+aiogram==3.6.0
+
+# OPENAPI
+drf-spectacular==0.27.2
+drf-spectacular-sidecar
