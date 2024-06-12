@@ -31,8 +31,6 @@ else:
     ALLOWED_HOSTS = ['*']
     DEBUG = True
 
-print(f'ALLOWED SHOT - > {ALLOWED_HOSTS}\nDEBUG -> {DEBUG}')
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -48,13 +46,13 @@ INSTALLED_APPS = [
     "main",
     # beatiful admin panel
     "adminlte3",
-    # Swagger
-    "drf_spectacular",
-    "drf_spectacular_sidecar",
     # JWT
     "rest_framework_simplejwt",
     # created apps
-    "user"
+    "user",
+    # Swagger
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 MIDDLEWARE = [
@@ -83,16 +81,27 @@ TEMPLATES = [
     },
 ]
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': getenv('POSTGRES_DB'),
-        'USER': getenv('POSTGRES_USER'),
-        'PASSWORD': getenv('POSTGRES_PASSWORD'),
-        'HOST': 'demlabs_database',
-        'PORT': getenv('POSTGRES_PORT')
+# FIXME: лишнее, оставить можно только is_prod
+if int(getenv("VS_CODE_DEBUG", 1)):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': getenv('POSTGRES_DB'),
+            'USER': getenv('POSTGRES_USER'),
+            'PASSWORD': getenv('POSTGRES_PASSWORD'),
+            'HOST': 'demlabs_database',
+            'PORT': getenv('POSTGRES_PORT')
+        }
+    }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -115,8 +124,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # code bellow doesn't work, resolve straightforward
 AUTH_USER_MODEL = "user.User"
 
-MEDIA_URL = getenv("MEDIA_URL", "")
-MEDIA_ROOT = path.join(BASE_DIR,getenv("MEDIA_ROOT", ""))
+MEDIA_URL = getenv("MEDIA_URL", "/media/")
+MEDIA_ROOT = path.join(BASE_DIR,getenv("MEDIA_ROOT", "media"))
 
 REST_FRAMEWORK = {
     # swagger drf-spectacular
@@ -143,10 +152,10 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(
-        minutes=int(getenv("ACCESS_TOKEN_LIFETIME"))
+        minutes=int(getenv("ACCESS_TOKEN_LIFETIME", 10000))
     ),
     "REFRESH_TOKEN_LIFETIME": timedelta(
-        days=int(getenv("REFRESH_TOKEN_LIFETIME"))
+        days=int(getenv("REFRESH_TOKEN_LIFETIME", 10001))
     ),
     "ROTATE_REFRESH_TOKENS": True,
     "SIGNING_KEY": getenv("JWT_SECRET_KEY"),
@@ -171,3 +180,8 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "user.authentication.CustomAuthenication"
 ]
+
+HTTP_HEADERS = {
+    "Access-Control-Allow-Origin": "https://localhost",
+    "Access-Control-Allow-Credentials": True
+}

@@ -25,6 +25,7 @@ urlpatterns = [
     # admin url
     path("admin/", admin.site.urls),
     # projects urls
+    path("api/v1/user/", include("user.urls")),
 ]
 
 urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)

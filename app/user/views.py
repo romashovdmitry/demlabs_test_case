@@ -8,7 +8,11 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework.decorators import action
-from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST
+)
 
 # import serializers
 from user.serializers import (
@@ -17,9 +21,12 @@ from user.serializers import (
 )
 
 # Swagger imports
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, PolymorphicProxySerializer
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiParameter,
+    OpenApiExample
+)
 from drf_spectacular.types import OpenApiTypes
-
 
 # import constants, config data
 from user.models.user import User
@@ -27,6 +34,7 @@ from main.settings import HTTP_HEADERS
 
 # import custom foos, classes
 from user.services import hashing, JWTActions
+
 
 # Create your views here.
 class UserCreateUpdate(ViewSet):
@@ -108,11 +116,11 @@ class UserCreateUpdate(ViewSet):
 
         except Exception as ex:
             # FIXME: добавить ф-цию логирования в тг
-            asyncio.run(
-                telegram_log_errors(
-                    f'[UserCreateUpdate][create_user] {str(ex)}'
-                )
-            )
+#            asyncio.run(
+#                telegram_log_errors(
+#                    f'[UserCreateUpdate][create_user] {str(ex)}'
+#                )
+#            )
             return Response(
                 str(ex),
                 status=HTTP_400_BAD_REQUEST,
@@ -124,36 +132,6 @@ class UserCreateUpdate(ViewSet):
         description='POST request to Login existing user',
         auth=None,
         operation_id="Login existing user",
-        parameters=[
-            OpenApiParameter(
-                name='email',
-                description='Email of the user',
-                required=True,
-                type=str,
-                examples=[
-                    OpenApiExample(
-                        'email example',
-                        value='club_admin@mail.com'
-                    ),
-                ],
-            ),
-            OpenApiParameter(
-                name='password',
-                type=OpenApiTypes.STR,
-                description=(
-                    "User password "
-                    "must contains digit, uppercase letter, "
-                    "lowercase letter, 7 characters long and "
-                    "not longer 20 characters. "
-                ),
-                examples=[
-                    OpenApiExample(
-                        'Password example',
-                        value='123njkQ6**N1q'
-                    ),
-                ],
-            ),
-        ],
         examples=[
             OpenApiExample(
                 'Example: succes login user',
@@ -201,11 +179,11 @@ class UserCreateUpdate(ViewSet):
 
         except Exception as ex:
             # FIXME: добавить ф-цию логирования в тг
-            asyncio.run(
-                telegram_log_errors(
-                    f'[UserCreateUpdate][login_user] {ex}'
-                )
-            )
+#            asyncio.run(
+#                telegram_log_errors(
+#                    f'[UserCreateUpdate][login_user] {ex}'
+#                )
+#            )
             return Response(
                 ex,
                 status=HTTP_400_BAD_REQUEST,

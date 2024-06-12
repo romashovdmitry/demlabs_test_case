@@ -8,7 +8,9 @@ typical_commands.txt
 # virtual env for debug in VS Code
 venv
 
+# static files
 static/*
+app/static/*
 !static/.gitkeep
 
 # Python files
@@ -16,3 +18,6 @@ static/*
 
 # for debbugging on local file
 launch.json
+
+# for local coding file
+db.sqlite3
