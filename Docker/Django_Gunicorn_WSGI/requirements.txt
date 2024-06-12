@@ -2,10 +2,12 @@
 gunicorn==22.0.0
 Django == 5.0.6
 djangorestframework==3.14
+psycopg2==2.9.3
 requests==2.27.1
 adrf==0.1.6
+django-extensions==3.2.3
 
-# for auth
+# for auth and JWT
 djangorestframework-simplejwt==5.3.1
 
 # for working with ENV
@@ -25,3 +27,9 @@ aiogram==3.6.0
 # OPENAPI
 drf-spectacular==0.27.2
 drf-spectacular-sidecar
+
+# customize admin-panel
+django-adminlte-3==0.1.6
+
+# for images in Admin panel
+Pillow==10.1.0

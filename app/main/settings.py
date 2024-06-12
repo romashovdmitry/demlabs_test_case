@@ -1,12 +1,23 @@
 # Python imports
-from os import getenv
+from os import getenv, path
 from pathlib import Path
+from datetime import timedelta
 
+# one-string default settings
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = getenv("SECRET_KEY")
+SECRET_KEY = getenv("SECRET_KEY", "secretos_007")
+ROOT_URLCONF = "main.urls"
+WSGI_APPLICATION = "main.wsgi.application"
+STATIC_URL = "static/"
+STATIC_ROOT = "static"
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_TZ = True
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # if project running on production server
-IS_PROD = int(getenv("IS_PROD"))
+IS_PROD = int(getenv("IS_PROD", "0"))
 
 if IS_PROD:
     ALLOWED_HOSTS = [
@@ -20,6 +31,8 @@ else:
     ALLOWED_HOSTS = ['*']
     DEBUG = True
 
+print(f'ALLOWED SHOT - > {ALLOWED_HOSTS}\nDEBUG -> {DEBUG}')
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -28,7 +41,20 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "main"
+    # collection of custom extensions for the Django Framework
+    # https://django-extensions.readthedocs.io/en/latest/ 
+    "django_extensions",
+    # basic app
+    "main",
+    # beatiful admin panel
+    "adminlte3",
+    # Swagger
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
+    # JWT
+    "rest_framework_simplejwt",
+    # created apps
+    "user"
 ]
 
 MIDDLEWARE = [
@@ -40,8 +66,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
-ROOT_URLCONF = "main.urls"
 
 TEMPLATES = [
     {
@@ -59,22 +83,16 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "demlabs_test_case.wsgi.application"
-
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': getenv('POSTGRES_DB'),
+        'USER': getenv('POSTGRES_USER'),
+        'PASSWORD': getenv('POSTGRES_PASSWORD'),
+        'HOST': 'demlabs_database',
+        'PORT': getenv('POSTGRES_PORT')
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -91,25 +109,65 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+""" custom (not default) additional settings """
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
+# AUTH_USER_MODEL = 'user.User'
+# code bellow doesn't work, resolve straightforward
+AUTH_USER_MODEL = "user.User"
 
-LANGUAGE_CODE = "en-us"
+MEDIA_URL = getenv("MEDIA_URL", "")
+MEDIA_ROOT = path.join(BASE_DIR,getenv("MEDIA_ROOT", ""))
 
-TIME_ZONE = "UTC"
+REST_FRAMEWORK = {
+    # swagger drf-spectacular
+    'DEFAULT_SCHEMA_CLASS': 
+        'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_RENDERERS': [
+        'drf_spectacular.renderers.SpectacularRenderer',
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    # JWT
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    # auth
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated'
+    ),
+    # throttling
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '1000/day'
+    }
+}
 
-USE_I18N = True
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(
+        minutes=int(getenv("ACCESS_TOKEN_LIFETIME"))
+    ),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        days=int(getenv("REFRESH_TOKEN_LIFETIME"))
+    ),
+    "ROTATE_REFRESH_TOKENS": True,
+    "SIGNING_KEY": getenv("JWT_SECRET_KEY"),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+}
 
-USE_TZ = True
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'DEMLABS Test Case',
+    'DESCRIPTION': 'DEBLABS MVP Shop',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+    # https://stackoverflow.com/a/67522312/24040439
+    # https://drf-spectacular.readthedocs.io/en/latest/faq.html#filefield-imagefield-is-not-handled-properly-in-the-schema
+    "COMPONENT_SPLIT_REQUEST": True
+}
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = "static/"
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "user.authentication.CustomAuthenication"
+]

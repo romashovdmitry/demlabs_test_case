@@ -4,3 +4,15 @@ typical_commands.txt
 
 # env data
 .env
+
+# virtual env for debug in VS Code
+venv
+
+static/*
+!static/.gitkeep
+
+# Python files
+*.pyc
+
+# for debbugging on local file
+launch.json
