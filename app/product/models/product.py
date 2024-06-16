@@ -2,10 +2,30 @@
 from django.db import models
 
 # import constants
-from product.constants import PRODUCT_CATEGORIES
+from product.constants import ProductCategories
+
+# import base model for inheritance
+from main.base_model import BaseModel
+
+# import custom foos, classes
+from main.utils import (
+    define_image_file_path,
+    image_file_extension_validator
+
+)
 
 
-class Product(models.Model):
+def define_product_image_path(instance, filename):
+
+    return define_image_file_path(
+        instance_indicator=str(instance.id),
+        filename=filename,
+        object_type="_product_image.",
+        directory="product_image/"
+    )
+
+
+class Product(BaseModel):
     """
     Products model.
     Only shop-admin can create and update new items.
@@ -24,10 +44,9 @@ class Product(models.Model):
         help_text="Product Name"
     )
 
-    category = models.CharField(
-        choices=PRODUCT_CATEGORIES,
-        null=False,
-        blank=False,
+    category = models.PositiveSmallIntegerField(
+        choices=ProductCategories,
+        default=0,  # no category
         verbose_name="Product Category",
         help_text="Product Category"
     )
@@ -50,4 +69,12 @@ class Product(models.Model):
         default=False,
         verbose_name="Product is saling or not",
         help_text="Product is saling or not"
+    )
+
+    product_image = models.ImageField(
+        upload_to=define_product_image_path,
+        null=True,
+        verbose_name="Product Image",
+        help_text="Product Image",
+        validators=[image_file_extension_validator]
     )

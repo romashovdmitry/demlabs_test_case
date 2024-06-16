@@ -1,10 +1,10 @@
 """
 constant data for product app foos, models, services
 """
-SMARTPHONE = 0  # user add to busket but haven't pay yet
-LAPTOP = 1  # user pai
+from django.db import models
 
-PRODUCT_CATEGORIES = (
-    (SMARTPHONE, "SMARTPHONE"),
-    (LAPTOP, "LAPTOP"),
-)
+
+class ProductCategories(models.IntegerChoices):
+    NO_CATEGORY = 0, 'NO_CATEGORY'
+    SMARTPHONE = 1, 'SMARTPHONE'
+    LAPTOP = 2, 'LAPTOP'

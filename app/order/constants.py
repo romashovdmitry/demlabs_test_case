@@ -12,3 +12,9 @@ ORDER_STATUS = (
     (DELIVERED, "DELIVERED"),
     (CANCELED, "CANCELED")
 )
+
+
+redis_basket_template = lambda product_id=None, quantity=None: {
+    'product_id': str(product_id) if product_id else "", 
+    'quantity': str(quantity) if quantity else ""
+}

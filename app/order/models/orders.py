@@ -6,7 +6,7 @@ from user.models.user import User
 from product.models.product import Product
 
 # import constants
-from orders.constants import ORDER_STATUS
+from order.constants import ORDER_STATUS
 
 
 class Order(models.Model):
@@ -24,18 +24,18 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sum = models.PositiveIntegerField(
         default=0,
-        help_text="Sum that was paid by user for order"
+        help_text="Sum that was paid by user for order",
         verbose_name="Sum that was paid by user for order"
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
         blank=False,
-        help_text="Date, time when order was placed, finished."
+        help_text="Date, time when order was placed, finished.",
         verbose_name="Date, time when order was placed, finished."
     )
     delivery_status = models.CharField(
         choices=ORDER_STATUS,
-        auto_now_add=True,
+        max_length=32,
         blank=False,
         verbose_name="Delivery Status",
         help_text="Delivery Status"

@@ -6,6 +6,8 @@ psycopg2==2.9.3
 requests==2.27.1
 adrf==0.1.6
 django-extensions==3.2.3
+redis==5.0.5
+django-filter==23.5
 
 # for auth and JWT
 djangorestframework-simplejwt==5.3.1
@@ -33,3 +35,4 @@ django-adminlte-3==0.1.6
 
 # for images in Admin panel
 Pillow==10.1.0
+

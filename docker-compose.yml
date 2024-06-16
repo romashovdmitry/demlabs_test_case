@@ -53,5 +53,21 @@ services:
         networks:
           - demlabs-app-network        
 
+    demlabs_redis:
+        container_name: demlabs_redis
+        build:
+            context: .
+            dockerfile: ./Docker/Redis/Dockerfile
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis:/data
+        restart: always
+        networks:
+          - demlabs-app-network
+
+volumes:
+  redis:
+
 networks:
   demlabs-app-network:

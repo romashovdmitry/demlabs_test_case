@@ -15,6 +15,8 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+MEDIA_URL = getenv("MEDIA_URL", "/media/")
+MEDIA_ROOT = path.join(BASE_DIR, getenv("MEDIA_ROOT", "media"))
 
 # if project running on production server
 IS_PROD = int(getenv("IS_PROD", "0"))
@@ -33,6 +35,10 @@ else:
 
 
 INSTALLED_APPS = [
+    # beatiful admin panel
+    "adminlte3",
+    "adminlte3_theme",
+    # default Django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,16 +46,18 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # collection of custom extensions for the Django Framework
-    # https://django-extensions.readthedocs.io/en/latest/ 
+    ## https://django-extensions.readthedocs.io/en/latest/ 
     "django_extensions",
+    ## https://django-filter.readthedocs.io/en/stable/guide/install.html
+    "django_filters",
     # basic app
     "main",
-    # beatiful admin panel
-    "adminlte3",
     # JWT
     "rest_framework_simplejwt",
     # created apps
     "user",
+    "product",
+    "order",
     # Swagger
     "drf_spectacular",
     "drf_spectacular_sidecar",
@@ -63,6 +71,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # my custom middleware
+    'main.middleware.UserToIDMiddleware',
+
 ]
 
 TEMPLATES = [
@@ -147,7 +158,11 @@ REST_FRAMEWORK = {
     # throttling
     'DEFAULT_THROTTLE_RATES': {
         'user': '1000/day'
-    }
+    },
+    # filters: https://django-filter.readthedocs.io/en/stable/guide/rest_framework.html#quickstart
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 SIMPLE_JWT = {
