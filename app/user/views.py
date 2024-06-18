@@ -60,7 +60,7 @@ class UserCreateUpdate(ViewSet):
             serializer = self.get_serializer_class()
             serializer = serializer(data=request.data)
 
-            if serializer.is_valid(raise_exception=True):
+            if serializer.is_valid():
                 validated_data = serializer.validated_data
                 instance = serializer.save()
                 # go to hash password

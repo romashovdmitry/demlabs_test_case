@@ -2,6 +2,7 @@
 from os import getenv, path
 from pathlib import Path
 from datetime import timedelta
+import sys
 
 # Telegram imports
 from aiogram import Bot
@@ -65,6 +66,7 @@ INSTALLED_APPS = [
     "product",
     "order",
     "telegram_bot",
+    "tests",
     # Swagger
     "drf_spectacular",
     "drf_spectacular_sidecar",
@@ -98,15 +100,23 @@ TEMPLATES = [
     },
 ]
 
+
+if 'test' in sys.argv:
+    DATABASES = {
+        "default": {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'mydatabase'
+        }
+    }
 # FIXME: лишнее, оставить можно только is_prod
-if int(getenv("VS_CODE_DEBUG", 1)):
+
+elif int(getenv("VS_CODE_DEBUG", 1)):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-
 else:
     DATABASES = {
         'default': {
