@@ -21,3 +21,6 @@ launch.json
 
 # for local coding file
 db.sqlite3
+
+/app/logs/*
+/app/media/*
