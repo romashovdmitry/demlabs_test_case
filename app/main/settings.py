@@ -3,6 +3,10 @@ from os import getenv, path
 from pathlib import Path
 from datetime import timedelta
 
+# Telegram imports
+from aiogram import Bot
+from aiogram.enums import ParseMode
+
 # one-string default settings
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = getenv("SECRET_KEY", "secretos_007")
@@ -17,6 +21,8 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = getenv("MEDIA_URL", "/media/")
 MEDIA_ROOT = path.join(BASE_DIR, getenv("MEDIA_ROOT", "media"))
+
+
 
 # if project running on production server
 IS_PROD = int(getenv("IS_PROD", "0"))
@@ -58,6 +64,7 @@ INSTALLED_APPS = [
     "user",
     "product",
     "order",
+    "telegram_bot",
     # Swagger
     "drf_spectacular",
     "drf_spectacular_sidecar",
@@ -73,7 +80,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # my custom middleware
     'main.middleware.UserToIDMiddleware',
-
 ]
 
 TEMPLATES = [
@@ -200,3 +206,49 @@ HTTP_HEADERS = {
     "Access-Control-Allow-Origin": "https://localhost",
     "Access-Control-Allow-Credentials": True
 }
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {"format": "%(asctime)s %(levelname) -4s %(name) -2s [%(pathname)s:%(lineno)d] %(message)s"},
+        "file": {"format": "%(asctime)s %(levelname) -4s %(name) -2s [%(filename)s:%(lineno)d] %(message)s"},
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "console",
+        },
+        "file": {
+            "level": "WARNING",
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "file",
+            "filename": f"{BASE_DIR}/logs/django_log.log",
+            "backupCount": 10,  # only 10 log files
+            "maxBytes": 5242880,  # 5*1024*1024 bytes (5MB)
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+        },
+    },
+    "filters": {
+        "require_warning_or_error": {
+            "()": "django.utils.log.RequireDebugFalse",
+        }
+    },
+    "root": {
+        "handlers": ["console", "file"],
+        "level": "INFO",
+    },
+}
+
+bot = Bot(
+    getenv("TELEGRAM_BOT_TOKEN"), 
+#   for VS Code debugging
+#    getenv("TELEGRAM_BOT_TOKEN". REAL_TOKEN), 
+    parse_mode=ParseMode.HTML
+)

@@ -16,7 +16,6 @@ swagger_schema_add_item_to_basket = extend_schema(
         tags=["Order"],
         summary="Push new product item to Redis basket",
         description='POST request to push new product item to Redis basket',
-#        auth=IsAuthenticated,
         operation_id="Push new product item to Redis basket",
         # NOTE: можно добавить больше в responses, если будет время
         request={
@@ -44,4 +43,13 @@ swagger_schema_add_item_to_basket = extend_schema(
         responses={
             200,
         }
+    )
+
+
+swagger_schema_create_order = extend_schema(
+        tags=["Order"],
+        summary="Buy products from Redis basket",
+        description='POST request to buy products from Redis basket',
+        operation_id="Buy products from Redis basket",
+        request=None
     )

@@ -4,8 +4,13 @@ from django.db import models
 # import models, base model for inheritance
 from user.models.user import User
 from product.models.product import Product
+from order.models.orders import Order
 
 # import constants
+from order.constants import REDIS_PRODUCT_BASKET_NOUNT_TEMPLATE, REPLACE_KEY
+
+# import custom foos, classes
+from main.utils import redis_con
 
 
 class OrderItems(models.Model):
@@ -30,7 +35,7 @@ class OrderItems(models.Model):
 
     product = models.ForeignKey(
         Product,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
         help_text="Purchased product",
         verbose_name="Purchased product"
@@ -47,3 +52,28 @@ class OrderItems(models.Model):
         verbose_name="How much paid user for one product item on pruchase moment"
     )
 
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    @staticmethod
+    def create_order_items(
+        user: User,
+        order: Order,
+        basket_items: list[dict],  
+    ):
+        for basket in basket_items:
+            redis_con.hdel(
+                REDIS_PRODUCT_BASKET_NOUNT_TEMPLATE.replace(
+                    REPLACE_KEY, str(basket["product"])
+                ),
+                user.pk
+            )
+            OrderItems.objects.create(
+                product=Product.objects.get(pk=basket["product"]),
+                quantity=basket.get("quantity"),
+                purchase_price=basket.get("purchase_price"),
+                order=order
+            )

@@ -1,11 +1,15 @@
 # Django imports
+from typing import Iterable
 from django.db import models
+from os import getenv
 
 # import constants
 from product.constants import ProductCategories
+from order.constants import REDIS_PRODUCT_BASKET_NOUNT_TEMPLATE, REPLACE_KEY
 
-# import base model for inheritance
+# import base model for inheritance, etc models
 from main.base_model import BaseModel
+from user.models.user import User
 
 # import custom foos, classes
 from main.utils import (
@@ -13,6 +17,7 @@ from main.utils import (
     image_file_extension_validator
 
 )
+from main.utils import redis_con
 
 
 def define_product_image_path(instance, filename):
@@ -78,3 +83,38 @@ class Product(BaseModel):
         help_text="Product Image",
         validators=[image_file_extension_validator]
     )
+
+    def get_redis_reserved_mount(self, previous_quantity: int):
+        """ return how much product items are not free for order now """
+        reservations = redis_con.hgetall(f"product_id:{self.pk}")
+
+        return sum(
+            int(quantity.decode('utf-8')) for quantity in reservations.values()
+        ) - previous_quantity if reservations else 0
+
+    def setup_redis_reserved_mount_by_user(
+        self,
+        items_quantity: int,
+        user_id: User.pk,
+        previous_quantity: int
+    ):
+        """
+        #FIXME: другой докстринг. надо исправить.
+        Update reserved mount method that used when user
+            add product items to basket. Need it to
+            control real mount of product on stocks
+            and product reservation.
+
+        Parameters:    
+            items_quantity (int): hou much items user update in basket
+            plus (bool): False - decrease value, True - increase value    
+        """
+
+        with redis_con.pipeline() as pipe:
+            pipe.multi()
+            redis_key = REDIS_PRODUCT_BASKET_NOUNT_TEMPLATE.replace(REPLACE_KEY, str(self.pk))
+            pipe.hdel(redis_key, user_id)
+            pipe.hset(redis_key, user_id, items_quantity)
+            pipe.expire(redis_key, getenv("REDIS_BASKET_TIME", 100))
+            pipe.execute()
+

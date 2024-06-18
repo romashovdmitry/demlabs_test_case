@@ -20,13 +20,11 @@ from user.serializers import (
     LoginUserSerializer,
 )
 
-# Swagger imports
-from drf_spectacular.utils import (
-    extend_schema,
-    OpenApiParameter,
-    OpenApiExample
+# swagger schemas import
+from user.swagger_schemas import (
+    swagger_schema_create_user,
+    swagger_schema_login_user
 )
-from drf_spectacular.types import OpenApiTypes
 
 # import constants, config data
 from user.models.user import User
@@ -34,9 +32,9 @@ from main.settings import HTTP_HEADERS
 
 # import custom foos, classes
 from user.services import hashing, JWTActions
+from telegram_bot.services import telegram_log_errors
 
 
-# Create your views here.
 class UserCreateUpdate(ViewSet):
     """ class for creating and updating users """
     http_method_names = ['post', 'update']
@@ -49,30 +47,7 @@ class UserCreateUpdate(ViewSet):
             return CreateUserSerializer
         return LoginUserSerializer
 
-    @extend_schema(
-        tags=["User"],
-        summary="Create new user",
-        description='POST request to create new user',
-        auth=None,
-        operation_id="Create new user",
-        examples=[
-            OpenApiExample(
-                'Example: succes created user',
-                description=(
-                    "User is a base model for player, "
-                    "club admin, touernament admin"
-                ),
-                value={
-                    "email": "club_admin@mail.com",
-                    "password": "123njkQ6**N1q",
-                }
-            ),
-        ],
-        # NOTE: можно добавить больше в responses, если будет время
-        responses={
-            201: None,
-        }
-    )
+    @swagger_schema_create_user
     @action(detail=False, methods=['post'], url_path="create_user")
     def create_user(self, request) -> Response:
         """
@@ -115,40 +90,19 @@ class UserCreateUpdate(ViewSet):
                 return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
         except Exception as ex:
-            # FIXME: добавить ф-цию логирования в тг
-#            asyncio.run(
-#                telegram_log_errors(
-#                    f'[UserCreateUpdate][create_user] {str(ex)}'
-#                )
-#            )
+
+            asyncio.run(
+                telegram_log_errors(
+                    f'[UserCreateUpdate][create_user] {str(ex)}'
+                )
+            )
+
             return Response(
                 str(ex),
                 status=HTTP_400_BAD_REQUEST,
             )
 
-    @extend_schema(
-        tags=["User"],
-        summary="Login existing user",
-        description='POST request to Login existing user',
-        auth=None,
-        operation_id="Login existing user",
-        examples=[
-            OpenApiExample(
-                'Example: succes login user',
-                description=(
-                    "User is a base model for player, "
-                    "club admin, touernament admin"
-                ),
-                value={
-                    "email": "club_admin@mail.com",
-                    "password": "123njkQ6**N1q"
-                }
-            ),
-        ],
-        responses={
-            200: None,
-        }
-    )
+    @swagger_schema_login_user
     @action(detail=False, methods=['post'], url_path="login_user")
     def login_user(self, request) -> Response:
         ''' login user '''
@@ -178,13 +132,15 @@ class UserCreateUpdate(ViewSet):
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
         except Exception as ex:
-            # FIXME: добавить ф-цию логирования в тг
-#            asyncio.run(
-#                telegram_log_errors(
-#                    f'[UserCreateUpdate][login_user] {ex}'
-#                )
-#            )
+
+            asyncio.run(
+                telegram_log_errors(
+                    f'[UserCreateUpdate][login_user] {ex}'
+                )
+            )
+
             return Response(
                 ex,
                 status=HTTP_400_BAD_REQUEST,
             )
+        

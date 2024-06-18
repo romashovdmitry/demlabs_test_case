@@ -12,7 +12,6 @@ from rest_framework.response import Response
 # JWT imports
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
 load_dotenv()
 
 

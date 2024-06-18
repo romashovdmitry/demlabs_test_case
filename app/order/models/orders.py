@@ -3,10 +3,9 @@ from django.db import models
 
 # import models
 from user.models.user import User
-from product.models.product import Product
 
 # import constants
-from order.constants import ORDER_STATUS
+from order.constants import OrderStatus
 
 
 class Order(models.Model):
@@ -34,9 +33,21 @@ class Order(models.Model):
         verbose_name="Date, time when order was placed, finished."
     )
     delivery_status = models.CharField(
-        choices=ORDER_STATUS,
+        choices=OrderStatus,
+        default=0,
         max_length=32,
         blank=False,
         verbose_name="Delivery Status",
         help_text="Delivery Status"
     )
+
+    @staticmethod
+    def create_new_order(
+        user: User,
+        sum: int
+
+    ): # -> Order
+        return Order.objects.create(
+            user=user,
+            sum=sum
+        )

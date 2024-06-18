@@ -2,6 +2,8 @@
 # Python imports
 import logging
 from os import getenv
+import inspect
+import json
 from PIL import Image
 
 # Django imports
@@ -9,6 +11,12 @@ from django.core.exceptions import ValidationError
 
 # import redis
 import redis
+
+# import constants
+from order.constants import (
+    REDIS_USER_BASKET_KEY_TEMPLATE,
+    REPLACE_KEY
+)
 
 logger = logging.getLogger(__name__)
 
@@ -138,3 +146,22 @@ def image_file_extension_validator(object):
             "Please, redefine filename by the correct way."
             f"Filename: {str(object)}"
         )
+    
+# https://stackoverflow.com/a/24628710
+foo_name = lambda: inspect.stack()[1][3]
+
+
+logger = logging.getLogger(__name__)
+
+redis_decode_hash = lambda d: {key.decode('utf-8'): value.decode('utf-8') for key, value in d.items()}
+redis_decode_list = lambda list_: [json.loads(elem) for elem in list_]
+get_user_id_from_redis_basket_key = lambda str_: int(
+    str_.replace(
+        REDIS_USER_BASKET_KEY_TEMPLATE.replace(
+            REPLACE_KEY,
+            ""
+        ), ""
+    )
+)
+redis_basket_sum = lambda list_: sum(element["purchase_price"] * element["quantity"] for element in list_)
+define_redis_basket_key = lambda int_: REDIS_USER_BASKET_KEY_TEMPLATE.replace(REPLACE_KEY, str(int_))
