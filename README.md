@@ -37,7 +37,7 @@ New products could be created by [Admin panel:](http://127.0.0.1:8001/admin/)
 
 # Swagger UI
 
-Link to [Swagger UI](http://81.31.244.30:8001/api/docs/)
+Link to [Swagger UI](http://127.0.0.1:8001/api/docs/)
 
 # TODO:
 
