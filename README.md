@@ -33,6 +33,7 @@ New products could be created by [Admin panel:](http://127.0.0.1:8001/admin/)
 - [ ] Swagger for describing implemented methods in OpenAPI format
 - [ ] Redis: for processing user's basket
 - [ ] aiogramm: for processing updates from bot
+- [ ] pytest: couple simple tests (need more)
 
 # Swagger UI
 
