@@ -54,3 +54,4 @@ Link to [Swagger UI](http://127.0.0.1:8001/api/docs/)
 - more tests
 - endpoint for payment webhooks/pushs/any other methods.
 - more details in Product model
+- maybe, it's better to divide basket from order views
