@@ -14,7 +14,7 @@ git clone https://github.com/romashovdmitry/demlabs_test_case/
 
 Plz, don't forget about Telegram ENVs.
 
-if will be created too long, just to comment two lines with Admin LTE.
+If Django would be created too long just comment two lines with Admin LTE
 
 ```
 INSTALLED_APPS = [
