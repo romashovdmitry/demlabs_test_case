@@ -186,7 +186,7 @@ SIMPLE_JWT = {
         minutes=int(getenv("ACCESS_TOKEN_LIFETIME", 10000))
     ),
     "REFRESH_TOKEN_LIFETIME": timedelta(
-        days=int(getenv("REFRESH_TOKEN_LIFETIME", 10001))
+        days=int(getenv("REFRESH_TOKEN_LIFETIME", 7))
     ),
     "ROTATE_REFRESH_TOKENS": True,
     "SIGNING_KEY": getenv("JWT_SECRET_KEY"),

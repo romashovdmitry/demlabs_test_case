@@ -12,7 +12,7 @@ from drf_spectacular.utils import (
 from drf_spectacular.types import OpenApiTypes
 
 
-swagger_schema_add_item_to_basket = extend_schema(
+swagger_schema_create_update_basket = extend_schema(
         tags=["Order"],
         summary="Push new product item to Redis basket",
         description='POST request to push new product item to Redis basket',
@@ -52,4 +52,34 @@ swagger_schema_create_order = extend_schema(
         description='POST request to buy products from Redis basket',
         operation_id="Buy products from Redis basket",
         request=None
+    )
+
+swagger_schema_get_basket = extend_schema(
+        tags=["Order"],
+        summary="Get list of products from basket",
+        description='GET request to buy products from Redis basket',
+        operation_id="Get list of products from basket",
+        request=None
+    )
+
+
+swagger_schema_delete_basket_item = extend_schema(
+        tags=["Order"],
+        summary="Delete product from basket",
+        description='DELETE request to remove product from Redis basket',
+        operation_id="Delete product from basket",
+        request={
+            "application/json": {
+                "description": "Delete product from basket",
+                "type": "object",
+                "properties": {
+                    "product": {
+                        "type": "integer",
+                    }
+                },
+                "required": [
+                    "product"
+                ],
+            }
+        }
     )

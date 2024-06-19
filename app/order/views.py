@@ -14,18 +14,25 @@ from rest_framework.status import (
 )
 
 # import serializers
-from order.serializers import CreateUpdateBasketSerializer
+from order.serializers import (
+    CreateUpdateBasketSerializer,
+    GetBasketSerializer
+)
 
 # import Redis actions
 from order.services import (
     redis_add_to_basket,
-    create_order_from_basket
+    create_order_from_basket,
+    get_basket_items,
+    delete_redis_product
 )
 
 # import Swagger schemas
 from order.swagger_schemas import (
-    swagger_schema_add_item_to_basket,
-    swagger_schema_create_order
+    swagger_schema_create_update_basket,
+    swagger_schema_create_order,
+    swagger_schema_get_basket,
+    swagger_schema_delete_basket_item
 )
 
 # import custom foos, classes
@@ -46,9 +53,20 @@ class OrderActions(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = CreateUpdateBasketSerializer
 
-    @swagger_schema_add_item_to_basket
-    @action(detail=True, methods=['post'], url_path="add_item_to_basket")
-    def add_item_to_basket(self, request):
+    serializer_map = {
+        'create_update_basket': CreateUpdateBasketSerializer,
+        'get_basket': GetBasketSerializer,
+    }
+
+    def get_serializer_class(self):
+        """ define serializer for class """
+
+        return self.serializer_map[self.action]
+
+
+    @swagger_schema_create_update_basket
+    @action(detail=True, methods=['post'], url_path="create_update_basket")
+    def create_update_basket(self, request):
         """
         1. Serizlie request.data, check if there are anough free items
             to make order
@@ -57,7 +75,6 @@ class OrderActions(ModelViewSet):
         """
         try:
             
-#            request.data["user_id"] = request.user_id
             serializer = self.serializer_class(
                 data={
                     **request.data,
@@ -98,3 +115,50 @@ class OrderActions(ModelViewSet):
         """
         create_order_from_basket(request.user)
         return Response(status=HTTP_201_CREATED)
+    
+    @swagger_schema_get_basket
+    @action(detail=False, methods=['get'], url_path="get_basket")
+    def get_basket(self, request):
+
+        try:
+
+            return Response(
+                status=HTTP_200_OK,
+                data=get_basket_items(request.user)
+            )
+
+        except Exception as ex:
+            asyncio.run(
+                telegram_log_errors(
+                    f'[{foo_name()}]'
+                    f'Ex text: {str(ex)}'
+                )
+            )
+
+            return Response(
+                str(ex),
+                status=HTTP_400_BAD_REQUEST
+            )
+
+    @swagger_schema_delete_basket_item
+    @action(detail=False, methods=['delete'], url_path="delete_basket_item")
+    def delete_basket_item(self, request, pk=None):
+        
+        try:
+
+            delete_redis_product(request.user_id, pk)
+
+            return Response(status=HTTP_200_OK)
+
+        except Exception as ex:
+            asyncio.run(
+                telegram_log_errors(
+                    f'[{foo_name()}]'
+                    f'Ex text: {str(ex)}'
+                )
+            )
+
+            return Response(
+                str(ex),
+                status=HTTP_400_BAD_REQUEST
+            )

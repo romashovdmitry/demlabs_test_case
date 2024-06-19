@@ -4,6 +4,7 @@ from django.db import models
 from os import getenv
 
 # import constants
+from main.constants import BASKET_TIME
 from product.constants import ProductCategories
 from order.constants import REDIS_PRODUCT_BASKET_NOUNT_TEMPLATE, REPLACE_KEY
 
@@ -115,6 +116,6 @@ class Product(BaseModel):
             redis_key = REDIS_PRODUCT_BASKET_NOUNT_TEMPLATE.replace(REPLACE_KEY, str(self.pk))
             pipe.hdel(redis_key, user_id)
             pipe.hset(redis_key, user_id, items_quantity)
-            pipe.expire(redis_key, getenv("REDIS_BASKET_TIME", 100))
+            pipe.expire(redis_key, BASKET_TIME)
             pipe.execute()
 

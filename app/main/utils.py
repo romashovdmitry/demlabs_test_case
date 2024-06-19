@@ -165,3 +165,7 @@ get_user_id_from_redis_basket_key = lambda str_: int(
 )
 redis_basket_sum = lambda list_: sum(element["purchase_price"] * element["quantity"] for element in list_)
 define_redis_basket_key = lambda int_: REDIS_USER_BASKET_KEY_TEMPLATE.replace(REPLACE_KEY, str(int_))
+define_user_basket_key = lambda user_pk: REDIS_USER_BASKET_KEY_TEMPLATE.replace(
+    REPLACE_KEY,
+    str(user_pk)
+)

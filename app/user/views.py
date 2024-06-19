@@ -37,14 +37,15 @@ from telegram_bot.services import telegram_log_errors
 
 class UserCreateUpdate(ViewSet):
     """ class for creating and updating users """
-    http_method_names = ['post', 'update']
-    lookup_field = 'id'
+    http_method_names = ['post']
     permission_classes = [AllowAny]
 
     def get_serializer_class(self):
         """ define serializer for class """
         if self.action == 'create_user':
+
             return CreateUserSerializer
+
         return LoginUserSerializer
 
     @swagger_schema_create_user
@@ -105,7 +106,7 @@ class UserCreateUpdate(ViewSet):
     @swagger_schema_login_user
     @action(detail=False, methods=['post'], url_path="login_user")
     def login_user(self, request) -> Response:
-        ''' login user '''
+        ''' Login User '''
         try:
             serializer = self.get_serializer_class()
             serializer = serializer(data=request.data)

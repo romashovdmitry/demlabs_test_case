@@ -35,7 +35,6 @@ class CreateUpdateBasketSerializer(serializers.ModelSerializer):
         2. Check if there is enough free product's
             quantity to add it to basket.
         """
-        print(attrs)
         data = super().validate(attrs)
         data["previous_basket_product"] = {}
         previous_quantity = 0
@@ -81,3 +80,22 @@ class CreateUpdateBasketSerializer(serializers.ModelSerializer):
         data["product"] = data["product"].pk
 
         return data
+
+
+
+class GetBasketSerializer(serializers.ModelSerializer):
+
+    product_image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrderItems
+        fields = (
+            "product",
+            "quantity",
+            "purchase_price",
+            "product_image"
+        )
+
+        def validate_product_image(self, data):
+            print(data)
+            return True
