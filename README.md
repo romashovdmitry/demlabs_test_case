@@ -14,6 +14,15 @@ git clone https://github.com/romashovdmitry/demlabs_test_case/
 
 Plz, don't forget about Telegram ENVs.
 
+if will be created too long, just to comment two lines with Admin LTE.
+
+```
+INSTALLED_APPS = [
+    # beatiful admin panel
+    "adminlte3",
+    "adminlte3_theme",
+```
+
 4. Run docker-compose 
 
 ```
