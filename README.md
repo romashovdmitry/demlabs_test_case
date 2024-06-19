@@ -23,10 +23,10 @@ INSTALLED_APPS = [
     "adminlte3_theme",
 ```
 
-4. Run docker-compose 
+4. Run docker compose 
 
 ```
-docker compose up
+docker compose up --build
 ```
 
 # How to create new product?
