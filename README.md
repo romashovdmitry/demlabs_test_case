@@ -22,6 +22,8 @@ docker compose up
 
 # How to create new product?
 
+New products could be created by [Admin panel:](http://127.0.0.1:8001/admin/)
+
 ## Stack
 
 - [ ] Docker, docker compose for containerization
