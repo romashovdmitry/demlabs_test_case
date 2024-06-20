@@ -1,6 +1,8 @@
 # demlabs_test_case
 Django Test Case for Demlabs.
 
+Screencast illustrating main project's functionality: [click_me](https://youtu.be/xx50t_QjUTg)
+
 ## Quick Start
 
 1. Clone the repository
