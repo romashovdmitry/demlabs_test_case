@@ -5,7 +5,6 @@ import asyncio
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.http import HttpResponse
 from rest_framework.decorators import action
 from rest_framework.status import (
     HTTP_200_OK,
@@ -16,10 +15,24 @@ from rest_framework.status import (
 # import serializers
 from order.serializers import (
     CreateUpdateBasketSerializer,
-    GetBasketSerializer
+    GetOrdersSerializer
 )
 
-# import Redis actions
+# import models
+from order.models import Order
+
+# import Swagger schemas
+from order.swagger_schemas import (
+    swagger_schema_create_update_basket,
+    swagger_schema_create_order,
+    swagger_schema_get_basket,
+    swagger_schema_delete_basket_item,
+    swagger_schema_get_orders
+)
+
+# import custom foos, classes
+from main.utils import foo_name
+from telegram_bot.services import telegram_log_errors
 from order.services import (
     redis_add_to_basket,
     create_order_from_basket,
@@ -27,20 +40,8 @@ from order.services import (
     delete_redis_product
 )
 
-# import Swagger schemas
-from order.swagger_schemas import (
-    swagger_schema_create_update_basket,
-    swagger_schema_create_order,
-    swagger_schema_get_basket,
-    swagger_schema_delete_basket_item
-)
 
-# import custom foos, classes
-from main.utils import foo_name
-from telegram_bot.services import telegram_log_errors
-
-
-class OrderActions(ModelViewSet):
+class OrderBasketActions(ModelViewSet):
     """
     Class for creating, updating, deleting, get
     list of product items inside basket.
@@ -55,7 +56,7 @@ class OrderActions(ModelViewSet):
 
     serializer_map = {
         'create_update_basket': CreateUpdateBasketSerializer,
-        'get_basket': GetBasketSerializer,
+        "get_orders": GetOrdersSerializer
     }
 
     def get_serializer_class(self):
@@ -65,7 +66,7 @@ class OrderActions(ModelViewSet):
 
 
     @swagger_schema_create_update_basket
-    @action(detail=True, methods=['post'], url_path="create_update_basket")
+    @action(detail=False, methods=['post'], url_path="create_update_basket")
     def create_update_basket(self, request):
         """
         1. Serizlie request.data, check if there are anough free items
@@ -75,6 +76,7 @@ class OrderActions(ModelViewSet):
         """
         try:
             
+            serializer = self.get_serializer_class()
             serializer = self.serializer_class(
                 data={
                     **request.data,
@@ -106,15 +108,6 @@ class OrderActions(ModelViewSet):
                 str(ex),
                 status=HTTP_400_BAD_REQUEST
             )
-
-    @swagger_schema_create_order
-    @action(detail=False, methods=['post'], url_path="create_order")
-    def create_order(self, request):
-        """
-        1. When user is ready to pay, user request here 
-        """
-        create_order_from_basket(request.user)
-        return Response(status=HTTP_201_CREATED)
     
     @swagger_schema_get_basket
     @action(detail=False, methods=['get'], url_path="get_basket")
@@ -141,7 +134,7 @@ class OrderActions(ModelViewSet):
             )
 
     @swagger_schema_delete_basket_item
-    @action(detail=False, methods=['delete'], url_path="delete_basket_item")
+    @action(detail=True, methods=['delete'], url_path="delete_basket_item")
     def delete_basket_item(self, request, pk=None):
         
         try:
@@ -149,6 +142,61 @@ class OrderActions(ModelViewSet):
             delete_redis_product(request.user_id, pk)
 
             return Response(status=HTTP_200_OK)
+
+        except Exception as ex:
+            asyncio.run(
+                telegram_log_errors(
+                    f'[{foo_name()}]'
+                    f'Ex text: {str(ex)}'
+                )
+            )
+
+            return Response(
+                str(ex),
+                status=HTTP_400_BAD_REQUEST
+            )
+        
+
+    @swagger_schema_create_order
+    @action(detail=False, methods=['post'], url_path="create_order")
+    def create_order(self, request):
+        """
+        1. When user is ready to pay, user request here 
+        """
+        try:
+            create_order_from_basket(request.user)
+
+            return Response(status=HTTP_201_CREATED)
+    
+        except Exception as ex:
+            asyncio.run(
+                telegram_log_errors(
+                    f'[{foo_name()}]'
+                    f'Ex text: {str(ex)}'
+                )
+            )
+
+            return Response(
+                str(ex),
+                status=HTTP_400_BAD_REQUEST
+            )
+
+    @swagger_schema_get_orders
+    @action(detail=False, methods=['post'], url_path="get_order")
+    def get_orders(self, request):
+        """
+        Get list of user's orders
+        NOTE: can use DRF def list.
+        """
+        try:
+
+            orders = Order.objects.filter(user__pk=request.user_id).all()
+            serializer = self.get_serializer_class()
+            serializer = serializer(orders, many=True)
+
+            return Response(
+                data=serializer.data, status=HTTP_200_OK
+            )
 
         except Exception as ex:
             asyncio.run(

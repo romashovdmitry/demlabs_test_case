@@ -21,11 +21,10 @@ from main.utils import (
 from main.utils import redis_con
 
 
-def define_product_image_path(instance, filename):
+def define_product_image_path(instance, filename):  # 2 required arguments
 
     return define_image_file_path(
-        instance_indicator=str(instance.id),
-        filename=filename,
+        filename=instance.name,
         object_type="_product_image.",
         directory="product_image/"
     )
@@ -85,6 +84,12 @@ class Product(BaseModel):
         validators=[image_file_extension_validator]
     )
 
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
     def get_redis_reserved_mount(self, previous_quantity: int):
         """ return how much product items are not free for order now """
         reservations = redis_con.hgetall(f"product_id:{self.pk}")
@@ -118,4 +123,3 @@ class Product(BaseModel):
             pipe.hset(redis_key, user_id, items_quantity)
             pipe.expire(redis_key, BASKET_TIME)
             pipe.execute()
-

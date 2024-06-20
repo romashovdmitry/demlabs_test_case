@@ -26,7 +26,7 @@ from main.utils import (
     redis_decode_list,
     get_user_id_from_redis_basket_key,
     redis_basket_sum,
-    define_redis_basket_key,
+    define_user_basket_key,
     foo_name,
     define_user_basket_key
 )
@@ -40,8 +40,9 @@ def get_redis_user_basket(func):
     new action with users's basket.
     """
     def wrapper(*args, **kwargs):
+        # kwargs["redis_user_basket_key"] == request.user_id
         kwargs["user_id"] = kwargs['redis_user_basket_key']
-        kwargs['redis_user_basket_key'] = define_redis_basket_key(
+        kwargs['redis_user_basket_key'] = define_user_basket_key(
             kwargs['redis_user_basket_key'])
 
         func(**kwargs)
@@ -113,9 +114,14 @@ def redis_add_to_basket(
 
 def create_order_from_basket(
         user: User
-):
+) -> None:
     """
-    1. Get order items reserved by basket.
+    Get order items reserved by basket, create
+        order. 
+
+    Parameters:
+        user(User): object of model user that create new
+            order    
     """
     redis_user_basket_key = define_user_basket_key(user.pk)
 
@@ -139,8 +145,16 @@ def create_order_from_basket(
     return
 
 
-def get_basket_items(user: User):
-    """get bakset """
+def get_basket_items(user: User) -> list[dict]:
+    """
+    Get user's bakset items
+
+    Parameters:
+        user(User): object of model user that created basket 
+
+    Returns:
+        list[dict]: list of dicts with basket items data
+    """
     redis_user_basket_key = define_user_basket_key(user.pk)
     basket_items = redis_decode_list(
         redis_con.lrange(
@@ -157,6 +171,7 @@ def get_basket_items(user: User):
                 "category": Product.objects.get(pk=basket["product"]).category,
                 "quantity": basket["quantity"],
                 "purchase_price": basket["purchase_price"],
+                # FIXME: look at replace, it's HOTFIX
                 "product_image": Product.objects.get(pk=basket["product"]).product_image.url
             }
         )
@@ -167,18 +182,48 @@ def get_basket_items(user: User):
 def delete_redis_product(
         user_pk: User.pk, product_pk: int
 ):
-    redis_user_basket_key = define_user_basket_key(user.pk)
-    with redis_con.pipeline() as pipe:
-        pipe.multi()
-        redis_con.hdel(
-            REDIS_PRODUCT_BASKET_NOUNT_TEMPLATE.replace(
-                REPLACE_KEY, str(product_pk)
-            ),
-            user_pk
-        )
-        redis_con.hdel(
-            redis_user_basket_key, user_pk 
-        )
-        pipe.execute()
+    """
+    Remove certain product from basket.
 
-    return
+    Parameters:
+        user_pk (User.pk): User's model primary key 
+    """
+    item_to_delete = None
+    # FIXME: yeah, it could be try/except processing
+    # better but i'm really tired and that's test case. 
+    # it's enough for free job.
+    try:
+        redis_user_basket_key = define_user_basket_key(user_pk)
+        # find item to delete
+        basket_items = redis_decode_list(
+            redis_con.lrange(
+                    redis_user_basket_key, 0, -1
+                )
+            )
+        for item in basket_items:
+
+            if item["product"] == product_pk:
+
+                item_to_delete = item
+
+        with redis_con.pipeline() as pipe:
+
+            pipe.multi()
+            redis_con.hdel(
+                REDIS_PRODUCT_BASKET_NOUNT_TEMPLATE.replace(
+                    REPLACE_KEY, str(product_pk)
+                ),
+                str(user_pk)
+            )
+            pipe.lrem(
+                redis_user_basket_key,
+                0,
+                json.dumps(item_to_delete)
+            )
+
+            pipe.execute()
+
+        return
+
+    except Exception as ex:
+        raise ex

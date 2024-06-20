@@ -19,10 +19,6 @@ swagger_schema_create_user = extend_schema(
         examples=[
             OpenApiExample(
                 'Example: succes created user',
-                description=(
-                    "User is a base model for player, "
-                    "club admin, touernament admin"
-                ),
                 value={
                     "email": "club_admin@mail.com",
                     "password": "123njkQ6**N1q",
@@ -45,10 +41,6 @@ swagger_schema_login_user = extend_schema(
         examples=[
             OpenApiExample(
                 'Example: succes login user',
-                description=(
-                    "User is a base model for player, "
-                    "club admin, touernament admin"
-                ),
                 value={
                     "email": "club_admin@mail.com",
                     "password": "123njkQ6**N1q"

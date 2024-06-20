@@ -16,21 +16,15 @@ from telegram_bot.handlers import demlabs_router
 dp = Dispatcher()
 
 
-#  https://docs.aiogram.dev/en/stable/#simple-usage
 async def main() -> None:
     """
-    Ф-ция запускает работу бота.
+    run Telegram bot
     """
     print('bot go')
     dp.include_routers(demlabs_router)
     await dp.start_polling(bot)
 
-
 class Command(BaseCommand):
-    """
-    Запускает бот-пуллинг телеграмм-бота
-    """
-
+    
     def handle(self, *args, **options):
-
         asyncio.run(main())

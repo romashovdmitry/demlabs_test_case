@@ -47,6 +47,9 @@ class AdminQueryHandler(CallbackQueryHandler):
             order.delivery_status = OrderStatus.DELIVERED
             await order.asave()
 
+            self.message.reply_markup.inline_keyboard[0][0] = None
+            await self.message.edit_reply_markup(reply_markup=self.message.reply_markup)
+
             await self.message.answer(
                 text=SUCCESS_UPDATE_STATUS
             )

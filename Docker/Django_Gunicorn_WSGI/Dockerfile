@@ -2,7 +2,7 @@ FROM python:3.10.8 as Python
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-EXPOSE 8070
+EXPOSE 8000
 
 WORKDIR /app
 
@@ -12,7 +12,6 @@ COPY ./app /app
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# HEALTHCHECK CMD curl -sS http://localhost:8070/api/docs/ || exit 1
 
 RUN chmod +x /app/entrypoint.sh
 # for Windows users, just in case, auto-changing

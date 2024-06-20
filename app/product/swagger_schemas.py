@@ -26,10 +26,10 @@ swagger_schema_product_detail = extend_schema(
 
 swagger_schema_prduct_list = extend_schema(
         tags=["Product"],
-        summary="Get list of products",
+        summary="Get all products of store",
         description='GET request to get list of products',
         auth=None,
-        operation_id="Get list of products",
+        operation_id="Get all products of store",
         # NOTE: можно добавить больше в responses, если будет время
         responses={
             200: Product,

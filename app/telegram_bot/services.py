@@ -14,8 +14,12 @@ from main.utils import logger
 from telegram_bot.constants import TELEGRAM_BUTTON, NEW_ORDER_NOTIFY_TEXT, REPLACE_KEY
 
 
-async def telegram_log_errors(exception_text: str):
-    """ для логгирования событий """
+async def telegram_log_errors(exception_text: str) -> None:
+    """
+    To log errors 
+    
+    exception_text (str): text of exception
+    """
     try:
         await bot.send_message(
             chat_id=getenv("DEVELOPER_TELEGRAM_ID", 442442997),
@@ -29,9 +33,16 @@ async def telegram_log_errors(exception_text: str):
     logger.error(exception_text)
 
 
-async def send_new_order_message(order_number: int):
-    """ send notify message about new order to Telegram group """
-    GROUP_TELEGRAM_ID = getenv("DEVELOPER_TELEGRAM_ID", 442442997)
+async def send_new_order_message(order_number: Order.pk) -> None:
+    """
+    Send notify message about new order to Telegram group
+
+    Parameters:
+        order_number (Order.pk): Order's object primare key
+            of created order.
+    """
+    # -4224556894 - group for test on local
+    DEVELOPER_TELEGRAM_ID = getenv("DEVELOPER_TELEGRAM_ID", 442442997) 
     telegram_button_builder = InlineKeyboardBuilder()
 
     for text, callback_data in TELEGRAM_BUTTON.items():
@@ -44,7 +55,7 @@ async def send_new_order_message(order_number: int):
     telegram_button_builder.adjust(1)
 
     await bot.send_message(
-        chat_id=GROUP_TELEGRAM_ID,
+        chat_id=DEVELOPER_TELEGRAM_ID,
         text=NEW_ORDER_NOTIFY_TEXT.replace(REPLACE_KEY, str(order_number)),
         reply_markup=telegram_button_builder.as_markup()
     )

@@ -22,7 +22,7 @@ from user.services import hashing
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
-    ''' Serizlizer for creating user instance '''
+    """ Serializer for creating user instance """
 
     class Meta:
         model = User
@@ -44,7 +44,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     )
 
     def validate_password(self, password):
-        ''' validate password '''
+        """ validate password """
         if not any(char.isdigit() for char in password):
             raise serializers.ValidationError(
                 "Password must contain at least one digit.",
@@ -76,7 +76,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return password
 
     def validate_email(self, email):
-        ''' validate email unique '''
+        """ validate email unique """
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError(
                 "email already exists",
@@ -87,7 +87,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 
 class LoginUserSerializer(CreateUserSerializer):
-    ''' serializer for get objects of Product model'''
+    """ serializer for login user """
 
     def validate_email(self, email):
         """

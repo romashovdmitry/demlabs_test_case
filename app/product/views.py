@@ -55,7 +55,7 @@ class ProductsAPIView(
         return super().retrieve(request, *args, **kwargs)
 
     @swagger_schema_prduct_list
-    @action(detail=True, methods=['get'], url_path="product_list")    
+    @action(detail=False, methods=['get'], url_path="product_list")    
     def product_list(self, request, *args, **kwargs):
         """ get all products or filtered list of products """
         return super().list(request, *args, **kwargs)

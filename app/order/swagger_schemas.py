@@ -57,7 +57,7 @@ swagger_schema_create_order = extend_schema(
 swagger_schema_get_basket = extend_schema(
         tags=["Order"],
         summary="Get list of products from basket",
-        description='GET request to buy products from Redis basket',
+        description='GET request to get list of products from basket',
         operation_id="Get list of products from basket",
         request=None
     )
@@ -82,4 +82,12 @@ swagger_schema_delete_basket_item = extend_schema(
                 ],
             }
         }
+    )
+
+
+swagger_schema_get_orders = extend_schema(
+        tags=["Order"],
+        summary="Get list of orders",
+        description='Get request to get list of orders',
+        operation_id="Get list of orders",
     )

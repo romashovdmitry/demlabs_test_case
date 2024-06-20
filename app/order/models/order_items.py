@@ -71,9 +71,12 @@ class OrderItems(models.Model):
                 ),
                 user.pk
             )
+            product = Product.objects.get(pk=basket["product"])
             OrderItems.objects.create(
-                product=Product.objects.get(pk=basket["product"]),
+                product=product,
                 quantity=basket.get("quantity"),
                 purchase_price=basket.get("purchase_price"),
                 order=order
             )
+            product.mount -= basket.get("quantity")
+            product.save()

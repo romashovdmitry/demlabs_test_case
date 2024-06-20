@@ -4,12 +4,12 @@ import json
 
 # import models
 from product.models import Product
-from order.models import OrderItems
+from order.models import OrderItems, Order
 
 # import constants
 from order.constants import TOO_MUCH_QUANTITY
 from main.utils import (
-    define_redis_basket_key,
+    define_user_basket_key,
     redis_decode_list,
     redis_con
 )
@@ -39,7 +39,7 @@ class CreateUpdateBasketSerializer(serializers.ModelSerializer):
         data["previous_basket_product"] = {}
         previous_quantity = 0
 
-        redis_user_basket_key = define_redis_basket_key(data["user_id"])
+        redis_user_basket_key = define_user_basket_key(data["user_id"])
         basket_items = redis_decode_list(
             redis_con.lrange(
                     redis_user_basket_key, 0, -1
@@ -82,20 +82,8 @@ class CreateUpdateBasketSerializer(serializers.ModelSerializer):
         return data
 
 
-
-class GetBasketSerializer(serializers.ModelSerializer):
-
-    product_image = serializers.SerializerMethodField()
+class GetOrdersSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = OrderItems
-        fields = (
-            "product",
-            "quantity",
-            "purchase_price",
-            "product_image"
-        )
-
-        def validate_product_image(self, data):
-            print(data)
-            return True
+        model = Order
+        exclude = ["user"]

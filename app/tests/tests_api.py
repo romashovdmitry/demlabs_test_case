@@ -22,7 +22,6 @@ class UserTestsSetUp(APITestCase):
     }
 
     def setUp(self):
-        print("PIZDAAAAAAAAA")
         User.objects.create(
             email=DEFAULT_EMAIL,
             password=DEFAULT_PASSWORD
@@ -53,4 +52,3 @@ class UserActionsTests(UserTestsSetUp):
                     response.json(),
                     SCENARIO["error_json"]
                 )
-                print(f'SCENARIO -> {SCENARIO}')
