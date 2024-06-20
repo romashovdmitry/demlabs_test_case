@@ -9,15 +9,12 @@ services:
         build:
             context: .
             dockerfile: ./Docker/Django_Gunicorn_WSGI/Dockerfile
+        depends_on:
+            - demlabs_database
         volumes:
             - ./static:/app/static
         ports: 
-            - "8070:8070"
-        healthcheck:
-            test: ["CMD-SHELL", "curl -f http://localhost:8070 || exit 1"]
-            interval: 30s
-            timeout: 10s
-            retries: 5
+            - "8000:8000"
         networks:
             - demlabs-app-network
 
@@ -31,8 +28,7 @@ services:
         volumes:
             - ./static:/static
         depends_on:
-            demlabs_django_gunicorn_wsgi:
-                condition: service_healthy
+            - demlabs_django_gunicorn_wsgi
         networks:
             - demlabs-app-network
 

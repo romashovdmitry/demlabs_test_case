@@ -23,10 +23,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = getenv("MEDIA_URL", "/media/")
 MEDIA_ROOT = path.join(BASE_DIR, getenv("MEDIA_ROOT", "media"))
 
-
+# equal to 1 when debugging
+VS_CODE_DEBUG = 0
 
 # if project running on production server
-IS_PROD = int(getenv("IS_PROD", "0"))
+IS_PROD = int(getenv("IS_PROD", 0))
 
 if IS_PROD:
     ALLOWED_HOSTS = [
@@ -37,8 +38,17 @@ if IS_PROD:
 
 # if it's running on local machine
 else:
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = ['*', "127.0.0.1"]  # it's better to set your's IP adress, etc
     DEBUG = True
+    # https://stackoverflow.com/a/73114422
+    CSRF_TRUSTED_ORIGINS = [
+        'http://127.0.0.1:8001'
+    ]
+    CORS_ORIGIN_ALLOW_ALL = True
+    HTTP_HEADERS = {
+        "Access-Control-Allow-Origin": "http://127.0.0.1:8001",
+        "Access-Control-Allow-Credentials": True
+    }
 
 
 INSTALLED_APPS = [
@@ -110,7 +120,7 @@ if 'test' in sys.argv:
     }
 # FIXME: лишнее, оставить можно только is_prod
 
-elif int(getenv("VS_CODE_DEBUG", 1)):
+elif VS_CODE_DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -147,8 +157,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 """ custom (not default) additional settings """
 
-# AUTH_USER_MODEL = 'user.User'
-# code bellow doesn't work, resolve straightforward
 AUTH_USER_MODEL = "user.User"
 
 MEDIA_URL = getenv("MEDIA_URL", "/media/")

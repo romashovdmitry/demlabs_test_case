@@ -16,7 +16,6 @@ CANCELED = 3
 class OrderStatus(models.IntegerChoices):
     NEW = 0, 'NEW'
     DELIVERED = 1, 'DELIVERED'
-    LAPTOP = 2, 'LAPTOP'
 
 REDIS_USER_BASKET_KEY_TEMPLATE = f"basket:user:{REPLACE_KEY}"
 REDIS_PRODUCT_BASKET_NOUNT_TEMPLATE = f"product_id:{REPLACE_KEY}"

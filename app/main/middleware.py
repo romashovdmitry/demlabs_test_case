@@ -1,13 +1,14 @@
 # JWT imports
 from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 
+
 # https://docs.djangoproject.com/en/5.0/topics/http/middleware/#writing-your-own-middleware
 class UserToIDMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-
+        """ add user_id key-valuepair to requst.data from request.user.id """
         authorization_header = request.headers.get('Authorization')
         if authorization_header:
             try:
@@ -18,9 +19,9 @@ class UserToIDMiddleware:
                     if user:
                         request.user_id = user.id
 
-            except ValueError:
+            except:
                 # wrong header format
-                pass
+                return self.get_response(request)
 
         response = self.get_response(request)
 

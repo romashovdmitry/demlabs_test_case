@@ -42,7 +42,5 @@ class CustomAuthenication(ModelBackend):
             return None
 
         except User.DoesNotExist as ex:
-            # FIXME: update to logger usage
-            print(ex)
 
             return None

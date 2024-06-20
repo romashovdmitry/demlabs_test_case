@@ -12,11 +12,12 @@ from django.core.exceptions import ValidationError
 # import redis
 import redis
 
-# import constants
+# import constants, config data
 from order.constants import (
     REDIS_USER_BASKET_KEY_TEMPLATE,
     REPLACE_KEY
 )
+from main.settings import VS_CODE_DEBUG
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +54,15 @@ def define_image_file_path(
 
 
 def create_redis_conn():
- 
-    if int(getenv("IS_PROD")):
+    """ create connection to Redis """
+    if VS_CODE_DEBUG:
+        redis_con = redis.Redis(
+            host="127.0.0.1",
+            port=6379,
+            db=0,
+        )
+
+    else:
         redis_con = redis.Redis(
             host=getenv("REDIS_HOST", default="127.0.0.1"),
             port=int(getenv("REDIS_PORT", default=6379)),
@@ -62,15 +70,6 @@ def create_redis_conn():
         )
 
         return redis_con
-    
-    else:
-        redis_con = redis.Redis(
-            host="127.0.0.1",
-            port=6379,
-            db=0,
-        )
-
-        return redis_con    
 
 
 redis_con = create_redis_conn()
@@ -81,7 +80,6 @@ def define_image_file_path(
         filename: str,
         directory: str,
         object_type: str,
-        instance_indicator: str
 ):
     """
     Define path for uploaded to API image.
@@ -98,7 +96,8 @@ def define_image_file_path(
             
     """
     try:
-        return directory + instance_indicator + object_type + filename.split(".")[-1]
+
+        return directory + object_type + filename.split(".")[-1]
 
     except Exception as ex:
         # FIXME: здесь логгирование должно быть
@@ -138,8 +137,7 @@ def image_file_extension_validator(object):
         return object
 
     except Exception as ex:
-        # FIXME: здесь логгирование должно быть
-        print(ex)
+
         raise ValidationError(
             "Real file-extension is not equal to "
             "file-extension in filename. "
@@ -147,14 +145,15 @@ def image_file_extension_validator(object):
             f"Filename: {str(object)}"
         )
     
-# https://stackoverflow.com/a/24628710
-foo_name = lambda: inspect.stack()[1][3]
-
 
 logger = logging.getLogger(__name__)
 
-redis_decode_hash = lambda d: {key.decode('utf-8'): value.decode('utf-8') for key, value in d.items()}
-redis_decode_list = lambda list_: [json.loads(elem) for elem in list_]
+# https://stackoverflow.com/a/24628710
+# get name of function, using for logging
+foo_name = lambda: inspect.stack()[1][3]
+
+# get request.user.id from Redis basket key
+# look at REDIS_USER_BASKET_KEY_TEMPLATE
 get_user_id_from_redis_basket_key = lambda str_: int(
     str_.replace(
         REDIS_USER_BASKET_KEY_TEMPLATE.replace(
@@ -163,9 +162,17 @@ get_user_id_from_redis_basket_key = lambda str_: int(
         ), ""
     )
 )
-redis_basket_sum = lambda list_: sum(element["purchase_price"] * element["quantity"] for element in list_)
-define_redis_basket_key = lambda int_: REDIS_USER_BASKET_KEY_TEMPLATE.replace(REPLACE_KEY, str(int_))
+
+
+# create Redis basket key from request.user.id
 define_user_basket_key = lambda user_pk: REDIS_USER_BASKET_KEY_TEMPLATE.replace(
     REPLACE_KEY,
     str(user_pk)
 )
+
+# decode from bytes to string list with dicts 
+redis_decode_list = lambda list_: [json.loads(elem) for elem in list_]
+
+
+# define cost of basket items
+redis_basket_sum = lambda list_: sum(element["purchase_price"] * element["quantity"] for element in list_)
